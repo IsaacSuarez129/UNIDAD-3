@@ -1,0 +1,96 @@
+from abc import ABC, abstractmethod
+
+class Pedido:
+    def __init__(self, cantidad, cliente):
+        self.cliente = cliente
+        self.cantidad = cantidad
+
+    def __str__(self):
+        return f"     Cliente: {self.cliente}\n     Cantidad: {self.cantidad}\n     ------------"
+
+class InterfazCola(ABC):
+    @abstractmethod
+    def tamano(self):
+        pass
+
+    @abstractmethod
+    def esta_vacia(self):
+        pass
+
+    @abstractmethod
+    def frente(self):
+        pass
+
+    @abstractmethod
+    def agregar(self, informacion):
+        pass
+
+    @abstractmethod
+    def quitar(self):
+        pass
+
+class Nodo:
+    def __init__(self, dato=None):
+        self.dato = dato
+        self.siguiente = None
+
+    def obtener_siguiente(self):
+        return self.siguiente
+
+class Cola(InterfazCola):
+    def __init__(self):
+        self.frente = self.final = None
+
+    def esta_vacia(self):
+        return self.frente is None
+
+    def tamano(self):
+        contador = 0
+        temp = self.frente
+        while temp:
+            contador += 1
+            temp = temp.obtener_siguiente()
+        return contador
+
+    def frente(self):
+        if self.esta_vacia():
+            return None
+        return self.frente.dato
+
+    def agregar(self, informacion):
+        nodo = Nodo(informacion)
+
+        if self.final is None:
+            self.frente = self.final = nodo
+            return
+        self.final.siguiente = nodo
+        self.final = nodo
+
+    def quitar(self):
+        if self.esta_vacia():
+            return None
+        temp = self.frente
+        self.frente = temp.obtener_siguiente()
+
+        if self.frente is None:
+            self.final = None
+        return temp.dato
+
+    def imprimir_cola(self):
+        nodo = self.frente
+        print("********* CONTENIDO DE LA COLA *********")
+        print(f"   Tamaño: {self.tamano()}")
+        contador = 0
+        while nodo:
+            contador += 1
+            print(f"   ** Elemento {contador}")
+            print(nodo.dato)
+            nodo = nodo.obtener_siguiente()
+        print("***************************************")
+
+cola = Cola()
+cola.agregar(Pedido(20, "cliente1"))
+cola.agregar(Pedido(30, "cliente2"))
+cola.agregar(Pedido(40, "cliente3"))
+cola.agregar(Pedido(50, "cliente3"))
+cola.imprimir_cola()
