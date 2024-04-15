@@ -1,0 +1,6 @@
+MyLinkedList.py
+setup.py
+MyLinkedList.egg-info/PKG-INFO
+MyLinkedList.egg-info/SOURCES.txt
+MyLinkedList.egg-info/dependency_links.txt
+MyLinkedList.egg-info/top_level.txt
