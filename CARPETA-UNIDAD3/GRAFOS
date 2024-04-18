@@ -1,1 +1,97 @@
+import random
+import networkx as nx
+import matplotlib.pyplot as plt
 
+class Viaje:
+    def __init__(self, estados, relaciones):
+        self.estados = estados
+        self.relaciones = relaciones
+
+    def SINREPETIR(self):
+        estados_visitados = set()
+        trayectos_visitados = set() 
+        costo_total = 0
+        estado_actual = random.choice(list(self.estados.keys()))
+
+        while len(estados_visitados) < len(self.estados):
+            if estado_actual not in estados_visitados:
+                estados_visitados.add(estado_actual)
+
+            print(f"Visitando {estado_actual} - Costo: ${self.estados[estado_actual]}")
+            costo_total += self.estados[estado_actual]
+
+            posibles_destinos = [(origen, destino) for origen, destino in self.relaciones if origen == estado_actual and destino not in estados_visitados and (origen, destino) not in trayectos_visitados]
+            if not posibles_destinos:  
+                estado_actual = None
+                for estado in self.estados.keys():
+                    if estado not in estados_visitados and any(origen == estado for origen, destino in self.relaciones):
+                        estado_actual = estado
+                        break
+                if estado_actual is None:
+                    break  
+                trayectos_visitados.clear()  
+            else:
+                posibles_destinos = [(origen, destino) for origen, destino in posibles_destinos if (origen, destino) not in trayectos_visitados]
+                if not posibles_destinos:
+                    trayectos_visitados.clear()
+                    continue
+                origen, destino = random.choice(posibles_destinos)
+                trayectos_visitados.add((origen, destino))
+                estado_actual = destino
+
+        print("Costo total del viaje: $", costo_total)
+
+    def REPETICIONES(self, num_veces=7):
+        costo_total = 0
+        for _ in range(num_veces):
+            origen, destino = random.choice(self.relaciones)
+            costo_total += self.estados[origen]
+            print(f"Desde {origen} a {destino} - Costo: ${self.estados[origen]}")
+        print("Costo total del viaje: $", costo_total)
+
+    def mostrar_relaciones(self):
+        G = nx.DiGraph()
+
+        for origen, destino in self.relaciones:
+            costo = self.estados[origen]  
+            G.add_edge(origen, destino, weight=costo)  
+
+        pos = nx.spring_layout(G, seed=42)  
+        nx.draw(G, pos, with_labels=True, node_size=1000, node_color="skyblue", font_size=10, font_weight="bold", arrows=True)
+
+
+        labels = nx.get_edge_attributes(G, 'weight')
+        nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
+
+        plt.title("Relaciones entre estados")
+        plt.show()
+
+estados = {
+    "Baja California": 180,
+    "Sonora": 200,
+    "Chihuahua": 220,
+    "Coahuila": 150,
+    "Durango": 170,
+    "Sinaloa": 190,
+    "Colima": 160
+}
+
+relaciones = [
+    ("Baja California", "Durango"),
+    ("Durango", "Sinaloa"),
+    ("Sinaloa", "Chihuahua"),
+    ("Chihuahua", "Sonora"),
+    ("Sonora", "Coahuila"),
+    ("Coahuila", "Baja California"),
+    ("Colima", "Sonora"),
+    ("Sonora", "Baja California"),
+    ("Baja California", "Chihuahua")
+]
+
+viaje = Viaje(estados, relaciones)
+print("Recorrido sin repetir estados ni trayectos entre los mismos estados:")
+viaje.SINREPETIR()
+print("\nRecorrido repitiendo estados y trayectos entre los mismos estados:")
+viaje.REPETICIONES()
+print("\nMostrando relaciones entre estados:")
+viaje.mostrar_relaciones()
