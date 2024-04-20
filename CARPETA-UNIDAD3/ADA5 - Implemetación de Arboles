@@ -1,0 +1,118 @@
+class Nodo:
+    def __init__(self, valor):
+        self.valor = valor
+        self.hijos = []
+
+class Arbol:
+    def __init__(self, raiz):
+        self.raiz = Nodo(raiz)
+
+    def agregar_nodo(self, valor, nodo_padre=None):
+        nodo = Nodo(valor)
+        if nodo_padre is None:
+            self.raiz.hijos.append(nodo)
+        else:
+            self._buscar_y_agregar_nodo(valor, nodo_padre, self.raiz)
+
+    def _buscar_y_agregar_nodo(self, valor, nodo_padre, nodo):
+        if nodo.valor == nodo_padre:
+            nodo.hijos.append(Nodo(valor))
+        else:
+            for hijo in nodo.hijos:
+                self._buscar_y_agregar_nodo(valor, nodo_padre, hijo)
+
+    def mostrar_arbol(self, nodo=None, nivel=0):
+        if nodo is None:
+            nodo = self.raiz
+        print(' ' * nivel * 2, nodo.valor)
+        for hijo in nodo.hijos:
+            self.mostrar_arbol(hijo, nivel+1)
+
+    def obtener_raiz(self):
+        return self.raiz.valor
+
+    def contar_hojas(self, nodo=None):
+        if nodo is None:
+            nodo = self.raiz
+        if not nodo.hijos:
+            return 1
+        else:
+            return sum(self.contar_hojas(hijo) for hijo in nodo.hijos)
+
+    def contar_niveles(self, nodo=None, nivel=0):
+        if nodo is None:
+            nodo = self.raiz
+        if not nodo.hijos:
+            return nivel
+        else:
+            return max(self.contar_niveles(hijo, nivel+1) for hijo in nodo.hijos)
+
+    def tipo_arbol(self, nodo=None):
+        if nodo is None:
+            nodo = self.raiz
+
+        def es_binario(nodo):
+            if len(nodo.hijos) > 2:
+                return False
+            else:
+                return all(es_binario(hijo) for hijo in nodo.hijos)
+
+        if es_binario(nodo):
+            return "Árbol binario"
+        else:
+            return "Árbol general"
+
+    def mostrar_arbol_bonito(self, nodo=None, nivel=0):
+        if nodo is None:
+            nodo = self.raiz
+        print(' ' * nivel * 2, end='')
+        if nodo.valor != self.raiz.valor:
+            print('|--', end='')
+        print(nodo.valor)
+        for hijo in nodo.hijos:
+            self.mostrar_arbol_bonito(hijo, nivel+1)
+
+    def altura(self, nodo=None):
+        if nodo is None:
+            nodo = self.raiz
+        if not nodo.hijos:
+            return 0
+        else:
+            return 1 + max(self.altura(hijo) for hijo in nodo.hijos)
+
+    def peso(self, nodo=None):
+        if nodo is None:
+            nodo = self.raiz
+        return 1 + sum(self.peso(hijo) for hijo in nodo.hijos)
+
+    def grado(self, nodo):
+        return len(nodo.hijos)
+
+    def nodos(self, nodo=None):
+        if nodo is None:
+            nodo = self.raiz
+        yield nodo
+        for hijo in nodo.hijos:
+            yield from self.nodos(hijo)
+
+arbol = Arbol('raiz')
+for i in range(1, 5):
+    arbol.agregar_nodo(f'padre{i}')
+
+for i in range(1, 5):
+    for j in range(1, 3):
+        arbol.agregar_nodo(f'hijo{j}_padre{i}', f'padre{i}')
+        arbol.agregar_nodo(f'nieto_hijo{j}_padre{i}', f'hijo{j}_padre{i}')
+        for k in range(1, 3):
+            arbol.agregar_nodo(f'bisnieto{k}_nieto_hijo{j}_padre{i}', f'nieto_hijo{j}_padre{i}')
+
+arbol.mostrar_arbol_bonito()
+
+print("Raíz del árbol:", arbol.obtener_raiz())
+print("Número de hojas:", arbol.contar_hojas())
+print("Número de niveles:", arbol.contar_niveles())
+print("Tipo de árbol:", arbol.tipo_arbol())
+print("Altura del árbol:", arbol.altura())
+print("Peso del árbol:", arbol.peso())
+print("Orden del árbol:", max(arbol.grado(nodo) for nodo in arbol.nodos()))
+print("Grado del árbol:", arbol.grado(arbol.raiz))
